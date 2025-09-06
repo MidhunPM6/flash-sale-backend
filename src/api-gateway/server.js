@@ -15,6 +15,9 @@ app.get('/', (req, res) => {
 app.use('/auth', proxy('http://localhost:5001', {
   proxyReqPathResolver: req => req.originalUrl.replace(/^\/auth/, ''),
 }))
+app.use('/inventory', proxy('http://localhost:6000', {
+  proxyReqPathResolver: req => req.originalUrl.replace(/^\/inventory/, ''),
+}))
 
 app.listen(PORT, () => {
   console.log(`API Gateway is running on port ${PORT}`)

@@ -1,4 +1,4 @@
-git# Ignore environment variable files 
+# Ignore environment variable files 
 # and node modules directory
 node_modules
 .env
