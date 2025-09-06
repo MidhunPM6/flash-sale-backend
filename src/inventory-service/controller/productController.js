@@ -1,8 +1,11 @@
+
 import {
   addProductService,
   getProductService,
+  reserveProductService,
   updateProductService
 } from '../service/productService.js'
+import { kafkaProducer } from '../utils/kafka.js'
 import { STATUS } from '../utils/statusCode.js'
 
 export const addProductController = async (req, res) => {
@@ -48,13 +51,41 @@ export const updateProductController = async (req, res) => {
         .status(STATUS.NOT_FOUND)
         .json({ message: 'All fields are required' })
     }
-    const updatedProduct = await updateProductService(id, productName, price, stock)
+    const updatedProduct = await updateProductService(
+      id,
+      productName,
+      price,
+      stock
+    )
     if (!updatedProduct) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Product not found' })
     }
     return res
       .status(STATUS.SUCCESS)
       .json({ message: 'Product updated successfully', data: updatedProduct })
+  } catch (error) {
+    return res.status(STATUS.INTERNAL_ERROR).json({ message: error.message })
+  }
+}
+
+export const reserveProductController = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body
+    if (!productId || !quantity) {
+      return res
+        .status(STATUS.NOT_FOUND)
+        .json({ message: 'Product ID is required' })
+    }
+    const reservedProduct = await reserveProductService(productId, quantity)
+    if (!reservedProduct) {
+      return res
+        .status(STATUS.NOT_FOUND)
+        .json({ success: false, message: 'Insufficient stock' })
+    }
+    
+    return res
+      .status(STATUS.SUCCESS)
+      .json({ message: 'Product reserved successfully', data: reservedProduct })
   } catch (error) {
     return res.status(STATUS.INTERNAL_ERROR).json({ message: error.message })
   }
